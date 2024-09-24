@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  backend:
+    build: ./backend
+    volumes:
+      - .dockervenv:/src/.venv
+      - ./backend:/src
+    ports:
+      - 8000:8000
+  db:
+    image: postgres:16
+    volumes:
+      - fastapi_postgres_data:/db
+    env_file:
+      - .env
+    environment:
+      TZ: Asia/Tokyo
+      PGTZ: Asia/Tokyo
+    ports:
+      - 15432:5432
+
+  # TODO: frontendのコンテナも用意する
+
+volumes:
+  fastapi_postgres_data:
