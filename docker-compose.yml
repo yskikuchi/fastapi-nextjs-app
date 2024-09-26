@@ -5,6 +5,7 @@ services:
     volumes:
       - .dockervenv:/src/.venv
       - ./backend:/src
+      - ./.env:/src/.env
     ports:
       - 8000:8000
   db:
