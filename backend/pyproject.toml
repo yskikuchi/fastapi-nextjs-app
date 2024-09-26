@@ -10,6 +10,11 @@ python = "^3.12"
 fastapi = "^0.114.0"
 uvicorn = {extras = ["standard"], version = "^0.30.6"}
 alembic = "^1.13.3"
+asyncpg = "^0.29.0"
+psycopg2 = "^2.9.9"
+psycopg2-binary = "^2.9.9"
+passlib = "^1.7.4"
+sqlalchemy-utils = "^0.41.2"
 
 
 [build-system]
