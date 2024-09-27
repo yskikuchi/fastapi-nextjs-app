@@ -15,6 +15,7 @@ psycopg2 = "^2.9.9"
 psycopg2-binary = "^2.9.9"
 passlib = "^1.7.4"
 sqlalchemy-utils = "^0.41.2"
+pydantic = {extras = ["email"], version = "^2.9.2"}
 
 
 [build-system]
