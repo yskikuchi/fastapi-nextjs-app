@@ -1,6 +1,7 @@
 import os
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
+from pydantic import EmailStr
 
 from dotenv import load_dotenv
 
@@ -25,6 +26,15 @@ class Settings:
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     oauth2_schema = OAuth2PasswordBearer(tokenUrl="/user/token")
 
+    MAIL_USERNAME: str = os.environ["MAIL_USERNAME"]
+    MAIL_PASSWORD: str = os.environ["MAIL_PASSWORD"]
+    MAIL_FROM: EmailStr = os.environ["MAIL_FROM"]
+    MAIL_PORT: int = int(os.environ["MAIL_PORT"])
+    MAIL_SERVER: str = os.environ["MAIL_SERVER"]
+    MAIL_SSL_TLS: bool = os.environ["MAIL_SSL_TLS"]
+    MAIL_STARTTLS: bool = os.environ["MAIL_STARTTLS"]
+    USE_CREDENTIALS: bool = os.environ["USE_CREDENTIALS"]
+    MAIL_FROM_NAME: str = None
 
 # インスタンス化
 settings = Settings()
