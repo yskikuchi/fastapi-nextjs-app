@@ -31,6 +31,7 @@ async def search_booking(
         "start_time": booking_info.start_time,
         "end_time": booking_info.end_time,
         "amount": booking_info.amount,
+        "status": booking_info.status,
         "car": {
             "id": car_info.id,
             "name": car_info.name,

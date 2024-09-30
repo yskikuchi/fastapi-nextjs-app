@@ -1,4 +1,5 @@
 from pydantic import BaseModel, UUID4, Field, EmailStr
+from typing import Literal
 from datetime import datetime
 
 from app.schemas.user import UserBase
@@ -33,6 +34,7 @@ class BookingReferenceResponse(BookingBase):
     start_time: datetime
     end_time: datetime
     amount: int
+    status: Literal["unconfirmed", "confirmed", "canceled", "paid", "completed"]
     car: Car
 
 
