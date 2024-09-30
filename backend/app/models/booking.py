@@ -12,7 +12,8 @@ class Booking(Base):
     __tablename__ = "bookings"
 
     id = Column(UUIDType(binary=False), primary_key=True, default=uuid.uuid4)
-    reference_number = Column(String(1024))
+    # 予約照会番号
+    reference_number = Column(String(1024), unique=True)
     # 利用開始時間
     start_time = Column(DateTime)
     # 利用終了時間
