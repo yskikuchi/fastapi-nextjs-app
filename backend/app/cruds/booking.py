@@ -61,6 +61,22 @@ async def create_booking(
     return {"reference_number": booking.reference_number}
 
 
+async def approve_booking(db: AsyncSession, original_booking: booking_model.Booking):
+    original_booking.status = "confirmed"
+    db.add(original_booking)
+    await db.commit()
+    await db.refresh(original_booking)
+    return {"message": "Confirmed"}
+
+
+async def get_booking(booking_id: UUID4, db: AsyncSession):
+    result = await db.execute(
+        select(booking_model.Booking).filter(booking_model.Booking.id == booking_id)
+    )
+    booking = result.first()
+    return booking[0] if booking is not None else None
+
+
 # 予約照会番号としてランダムな文字列を生成
 async def generate_reference_number(db: AsyncSession) -> str:
     # 最大試行回数を設定

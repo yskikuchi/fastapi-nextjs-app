@@ -1,5 +1,5 @@
-from typing import List
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import UUID4
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import app.schemas.booking as booking_schema
@@ -28,6 +28,14 @@ async def create_booking(
         },
     )
     return response
+
+
+@router.patch("/booking/{booking_id}/approve")
+async def approve_booking(booking_id: UUID4, db: AsyncSession = Depends(get_db)):
+    booking = await booking_crud.get_booking(booking_id, db)
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    return await booking_crud.approve_booking(db, booking)
 
 
 @router.post("/booking/search", response_model=booking_schema.BookingReferenceResponse)
