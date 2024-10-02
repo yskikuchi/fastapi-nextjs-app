@@ -36,5 +36,10 @@ class Settings:
     USE_CREDENTIALS: bool = os.environ["USE_CREDENTIALS"]
     MAIL_FROM_NAME: str = None
 
+    SECRET_KEY: str = os.environ["SECRET_KEY"]
+
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
 # インスタンス化
 settings = Settings()

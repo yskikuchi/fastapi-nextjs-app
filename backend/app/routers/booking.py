@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
 from pydantic import UUID4
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -7,6 +8,8 @@ import app.cruds.booking as booking_crud
 import app.cruds.user as user_crud
 from app.db.db import get_db
 import app.services.mail_service as mail_service
+import app.services.auth_service as auth_service
+import app.models.admin as admin_model
 
 router = APIRouter(tags=["booking"])
 
@@ -31,7 +34,14 @@ async def create_booking(
 
 
 @router.patch("/booking/{booking_id}/approve")
-async def approve_booking(booking_id: UUID4, db: AsyncSession = Depends(get_db)):
+async def approve_booking(
+    booking_id: UUID4,
+    db: AsyncSession = Depends(get_db),
+    current_admin: admin_model.Admin = Depends(auth_service.get_current_user),
+):
+    if not current_admin:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
     booking = await booking_crud.get_booking(booking_id, db)
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
