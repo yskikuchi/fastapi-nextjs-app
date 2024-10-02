@@ -23,12 +23,14 @@ async def create_booking(
 
     await mail_service.send_email(
         ["admin@sample.com"],
+        "予約リクエスト",
         {
             "name": booking_body.user.name,
             "email": booking_body.user.email,
             "start_time": booking_body.start_time.strftime("%Y-%m-%d %H:%M:%S"),
             "end_time": booking_body.end_time.strftime("%Y-%m-%d %H:%M:%S"),
         },
+        "request_notice.html",
     )
     return response
 
@@ -42,10 +44,18 @@ async def approve_booking(
     if not current_admin:
         raise HTTPException(status_code=401, detail="Unauthorized")
 
-    booking = await booking_crud.get_booking(booking_id, db)
+    booking = await booking_crud.get_booking_with_user(booking_id, db)
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
-    return await booking_crud.approve_booking(db, booking)
+
+    response = await booking_crud.approve_booking(db, booking)
+    await mail_service.send_email(
+        [booking.user.email],
+        "予約確定",
+        {},
+        "approval_notice.html",
+    )
+    return response
 
 
 @router.post("/booking/search", response_model=booking_schema.BookingReferenceResponse)

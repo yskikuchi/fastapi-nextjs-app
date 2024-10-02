@@ -2,6 +2,7 @@ import random
 import string
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import select
+from sqlalchemy.orm import joinedload
 from pydantic.types import UUID4
 
 import app.schemas.booking as booking_schema
@@ -69,10 +70,13 @@ async def approve_booking(db: AsyncSession, original_booking: booking_model.Book
     return {"message": "Confirmed"}
 
 
-async def get_booking(booking_id: UUID4, db: AsyncSession):
+async def get_booking_with_user(booking_id: UUID4, db: AsyncSession):
     result = await db.execute(
-        select(booking_model.Booking).filter(booking_model.Booking.id == booking_id)
+        select(booking_model.Booking)
+        .filter(booking_model.Booking.id == booking_id)
+        .options(joinedload(booking_model.Booking.user))
     )
+
     booking = result.first()
     return booking[0] if booking is not None else None
 
