@@ -3,7 +3,7 @@ import datetime
 
 from sqlalchemy import Column, String, DateTime, Integer, ForeignKey
 from sqlalchemy_utils import UUIDType
-
+from sqlalchemy.orm import relationship
 from app.db.db import Base
 
 
@@ -26,3 +26,4 @@ class Booking(Base):
     car_id = Column(UUIDType(binary=False), ForeignKey("cars.id"), nullable=False)
     created_at = Column(DateTime, default=datetime.datetime.now)
     updated_at = Column(DateTime, default=datetime.datetime.now)
+    user = relationship("User", back_populates="booking")
