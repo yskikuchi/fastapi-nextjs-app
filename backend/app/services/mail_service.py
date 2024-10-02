@@ -18,13 +18,15 @@ conf = ConnectionConfig(
 )
 
 
-async def send_email(email_to: List[EmailStr], body: dict):
+async def send_email(
+    email_to: List[EmailStr], subject: str, body: dict, template_name: str
+):
     message = MessageSchema(
-        subject="予約リクエスト",
+        subject=subject,
         recipients=email_to,
         template_body=body,
         subtype=MessageType.html,
     )
 
     fm = FastMail(conf)
-    await fm.send_message(message, template_name="email.html")
+    await fm.send_message(message, template_name=template_name)
