@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import UUID4
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,7 +9,9 @@ import app.cruds.user as user_crud
 from app.db.db import get_db
 import app.services.mail_service as mail_service
 import app.services.auth_service as auth_service
+import app.services.stripe_service as stripe_service
 import app.models.admin as admin_model
+import stripe
 
 router = APIRouter(tags=["booking"])
 
@@ -49,10 +51,16 @@ async def approve_booking(
         raise HTTPException(status_code=404, detail="Booking not found")
 
     response = await booking_crud.approve_booking(db, booking)
+
+    # Stripe決済リンクの生成
+    payment_link = await stripe_service.create_stripe_payment_link(
+        booking.amount, str(booking.reference_number)
+    )
+
     await mail_service.send_email(
         [booking.user.email],
         "予約確定",
-        {},
+        {"payment_link": payment_link},
         "approval_notice.html",
     )
     return response
@@ -63,3 +71,30 @@ async def search_booking(
     search_body: booking_schema.BookingReference, db: AsyncSession = Depends(get_db)
 ):
     return await booking_crud.search_booking(search_body, db)
+
+
+# 支払いイベントを処理
+@router.post("/booking/payment/webhook")
+async def handle_payment_event(request: Request, db: AsyncSession = Depends(get_db)):
+    payload = await request.body()
+    sig_header = request.headers.get("stripe-signature")
+    event = None
+
+    endpoint_secret = (
+        "whsec_779693f0c5743417e69c6a80a12864c071909f760849e335424feea604ac3f23"
+    )
+
+    try:
+        event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
+    except ValueError as e:
+        # Invalid payload
+        return HTTPException(status_code=400)
+    except stripe.error.SignatureVerificationError as e:
+        # Invalid signature
+        return HTTPException(status_code=400)
+
+    # 支払い完了後にpaidステータスに更新
+    if event["type"] == "checkout.session.completed":
+        await stripe_service.fullfill_checkout(event["data"]["object"]["id"], db)
+
+    return HTTPException(status_code=200)

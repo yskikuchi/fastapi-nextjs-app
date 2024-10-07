@@ -70,11 +70,28 @@ async def approve_booking(db: AsyncSession, original_booking: booking_model.Book
     return {"message": "Confirmed"}
 
 
+async def complete_payment(db: AsyncSession, booking: booking_model.Booking):
+    booking.status = "paid"
+    db.add(booking)
+    await db.commit()
+    await db.refresh(booking)
+    return {"message": "Paid"}
+
+
 async def get_booking_with_user(booking_id: UUID4, db: AsyncSession):
     result = await db.execute(
         select(booking_model.Booking)
         .filter(booking_model.Booking.id == booking_id)
         .options(joinedload(booking_model.Booking.user))
+    )
+
+    booking = result.first()
+    return booking[0] if booking is not None else None
+
+async def get_booking_by_reference_number(reference_number: str, db: AsyncSession):
+    result = await db.execute(
+        select(booking_model.Booking)
+        .filter(booking_model.Booking.reference_number == reference_number)
     )
 
     booking = result.first()
