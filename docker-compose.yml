@@ -6,12 +6,13 @@ services:
       - .dockervenv:/src/.venv
       - ./backend:/src
       - ./.env:/src/.env
+      - ./.env.test:/src/.env.test
     ports:
       - 8000:8000
   db:
     image: postgres:16
     volumes:
-      - fastapi_postgres_data:/db
+      - fastapi_postgres_data:/var/lib/postgresql/data
     env_file:
       - .env
     environment:
@@ -19,6 +20,17 @@ services:
       PGTZ: Asia/Tokyo
     ports:
       - 15432:5432
+  test_db:
+    image: postgres:16
+    volumes:
+      - fastapi_postgres_data_test:/var/lib/postgresql/data
+    env_file:
+      - .env.test
+    environment:
+      TZ: Asia/Tokyo
+      PGTZ: Asia/Tokyo
+    ports:
+      - 15433:5432
   mailcatcher:
     container_name: mailcatcher
     image: schickling/mailcatcher
@@ -30,3 +42,4 @@ services:
 
 volumes:
   fastapi_postgres_data:
+  fastapi_postgres_data_test:
