@@ -43,14 +43,13 @@ class BookingCreate(BookingBase):
             raise ValueError("未来の日付を指定してください")
         return v
 
-    @model_validator(mode="before")
-    @classmethod
-    def validate_time_range(cls, values):
-        start_time = datetime.fromisoformat(values.get("start_time"))
-        end_time = datetime.fromisoformat(values.get("end_time"))
+    @model_validator(mode="after")
+    def validate_time_range(self):
+        start_time = self.start_time
+        end_time = self.end_time
         if start_time >= end_time:
             raise ValueError("利用終了時間は利用開始時間より後にしてください")
-        return values
+        return self
 
 
 class BookingReference(BookingBase):
