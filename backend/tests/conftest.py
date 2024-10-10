@@ -63,3 +63,18 @@ async def async_client() -> AsyncClient:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         yield client
+
+
+# テスト用の管理者ユーザーを作成し、ログインしてアクセストークンを返す
+async def create_admin_and_login(async_client):
+    name = "admin"
+    email = "admin@example.com"
+    password = "password"
+    await async_client.post(
+        "/admin",
+        json={"name": name, "email": email, "password": password},
+    )
+    login_response = await async_client.post(
+        "/admin/login", data={"username": email, "password": password}
+    )
+    return login_response.json()["access_token"]

@@ -1,9 +1,8 @@
 import pytest
 from tests.conftest import create_admin_and_login
 
-
 @pytest.mark.asyncio
-async def test_get_car(async_client):
+async def test_create_booking(async_client):
     access_token = await create_admin_and_login(async_client)
     response = await async_client.post(
         "/cars",
