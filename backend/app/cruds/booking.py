@@ -4,6 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import select
 from sqlalchemy.orm import joinedload
 from pydantic.types import UUID4
+from fastapi import HTTPException
+from app.validators.booking_validator import validate_booking_overlap
 
 import app.schemas.booking as booking_schema
 import app.models.booking as booking_model
@@ -47,6 +49,9 @@ async def create_booking(
 ) -> booking_schema.BookingCreateResponse:
     try:
         reference_number = await generate_reference_number(db)
+        # 予約の重複チェック
+        await validate_booking_overlap(create_booking, db)
+
         booking = booking_model.Booking(
             **create_booking.model_dump(exclude={"user"}),
             reference_number=reference_number,
@@ -88,10 +93,12 @@ async def get_booking_with_user(booking_id: UUID4, db: AsyncSession):
     booking = result.first()
     return booking[0] if booking is not None else None
 
+
 async def get_booking_by_reference_number(reference_number: str, db: AsyncSession):
     result = await db.execute(
-        select(booking_model.Booking)
-        .filter(booking_model.Booking.reference_number == reference_number)
+        select(booking_model.Booking).filter(
+            booking_model.Booking.reference_number == reference_number
+        )
     )
 
     booking = result.first()
