@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from app.db.db import get_db, Base
 from app.main import app
 from dotenv import load_dotenv
+import app.models.car as car_model
 
 # TODO: テスト用の環境変数を読み込めるようにする
 # dotenv_path = join(dirname(__file__), ".env.test")
@@ -78,3 +79,10 @@ async def create_admin_and_login(async_client):
         "/admin/login", data={"username": email, "password": password}
     )
     return login_response.json()["access_token"]
+
+
+# テスト用の車両を作成する
+async def create_car(async_session_fixture):
+    car = car_model.Car(name="車両A", capacity=6, car_number="品川 あ 12-34")
+    async_session_fixture.add(car)
+    await async_session_fixture.commit()

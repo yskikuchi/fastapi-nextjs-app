@@ -1,20 +1,78 @@
 import pytest
-from tests.conftest import create_admin_and_login
+import uuid
+from sqlalchemy import select
+from datetime import datetime, timedelta
+from tests.conftest import create_car
+import app.models.car as car_model
+
 
 @pytest.mark.asyncio
-async def test_create_booking(async_client):
-    access_token = await create_admin_and_login(async_client)
-    response = await async_client.post(
-        "/cars",
-        headers={"Authorization": "Bearer {token}".format(token=access_token)},
-        json={"name": "車両A", "capacity": 6, "car_number": "品川 あ 12-34"},
-    )
-    assert response.status_code == 200
-    response_obj = response.json()
+async def test_create_booking(async_client, async_session_fixture):
+    await create_car(async_session_fixture)
+    result = await async_session_fixture.execute(select(car_model.Car.id))
+    car_id = result.scalars().first()
 
-    response = await async_client.get("/cars")
+    response = await async_client.post(
+        "/booking",
+        json={
+            "user": {"name": "テストユーザー", "email": "test@sample.com"},
+            "car_id": str(car_id),
+            "start_time": (datetime.now() + timedelta(days=2)).strftime(
+                "%Y-%m-%dT%H:%M:%S"
+            ),
+            "end_time": (datetime.now() + timedelta(days=4)).strftime(
+                "%Y-%m-%dT%H:%M:%S"
+            ),
+            "amount": 10000,
+        },
+    )
+
     assert response.status_code == 200
-    response_obj = response.json()
-    assert len(response_obj) == 1
-    assert response_obj[0]["name"] == "車両A"
-    assert response_obj[0]["capacity"] == 6
+
+
+@pytest.mark.asyncio
+async def test_create_booking_invalid(async_client, async_session_fixture):
+    await create_car(async_session_fixture)
+    result = await async_session_fixture.execute(select(car_model.Car.id))
+    car_id = result.scalars().first()
+
+    # 過去の日付を指定
+    past_time = (datetime.now() - timedelta(days=2)).strftime("%Y-%m-%dT%H:%M:%S")
+    response = await async_client.post(
+        "/booking",
+        json={
+            "user": {"name": "テストユーザー", "email": "test@sample.com"},
+            "car_id": str(car_id),
+            "start_time": past_time,
+            "end_time": (datetime.now() + timedelta(days=4)).strftime(
+                "%Y-%m-%dT%H:%M:%S"
+            ),
+            "amount": 10000,
+        },
+    )
+
+    assert response.status_code == 422
+    response_json = response.json()
+    assert (
+        response_json["detail"][0]["msg"] == "Value error, 未来の日付を指定してください"
+    )
+
+    # 利用終了時間が利用開始時間より前
+    start_time = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%dT%H:%M:%S")
+    end_time = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%S")
+    response = await async_client.post(
+        "/booking",
+        json={
+            "user": {"name": "テストユーザー", "email": "test@sample.com"},
+            "car_id": str(car_id),
+            "start_time": start_time,
+            "end_time": end_time,
+            "amount": 10000,
+        },
+    )
+    assert response.status_code == 422
+    response_json = response.json()
+    assert (
+        response_json["detail"][0]["msg"]
+        == "Value error, 利用終了時間は利用開始時間より後にしてください"
+    )
