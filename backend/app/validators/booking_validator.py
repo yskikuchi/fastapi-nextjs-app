@@ -15,5 +15,5 @@ async def validate_booking_overlap(create_booking, db: AsyncSession):
     )
     if existing_booking.scalars().first():
         raise HTTPException(
-            status_code=400, detail="選択した時間帯で既に予約が入っています"
+            status_code=422, detail="選択した時間帯で既に予約が入っています"
         )

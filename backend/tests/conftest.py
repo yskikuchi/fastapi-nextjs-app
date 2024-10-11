@@ -1,6 +1,7 @@
 import pytest
 import os
 import pytest_asyncio
+from datetime import datetime, timedelta
 from os.path import join, dirname
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -9,6 +10,8 @@ from app.db.db import get_db, Base
 from app.main import app
 from dotenv import load_dotenv
 import app.models.car as car_model
+import app.models.booking as booking_model
+import app.models.user as user_model
 
 # TODO: テスト用の環境変数を読み込めるようにする
 # dotenv_path = join(dirname(__file__), ".env.test")
@@ -85,4 +88,28 @@ async def create_admin_and_login(async_client):
 async def create_car(async_session_fixture):
     car = car_model.Car(name="車両A", capacity=6, car_number="品川 あ 12-34")
     async_session_fixture.add(car)
+    await async_session_fixture.commit()
+
+
+# テスト用のユーザーを作成する
+async def create_user(async_session_fixture):
+    user = user_model.User(name="テストユーザー", email="test@sample.com")
+    async_session_fixture.add(user)
+    await async_session_fixture.commit()
+
+
+# テスト用の予約を作成する
+async def create_booking(async_session_fixture, car_id, user_id):
+    start_time = datetime.now() + timedelta(days=2)
+    end_time = datetime.now() + timedelta(days=4)
+
+    booking = booking_model.Booking(
+        reference_number="Abcd1234",
+        car_id=car_id,
+        user_id=user_id,
+        start_time=start_time,
+        end_time=end_time,
+        amount=10000,
+    )
+    async_session_fixture.add(booking)
     await async_session_fixture.commit()
