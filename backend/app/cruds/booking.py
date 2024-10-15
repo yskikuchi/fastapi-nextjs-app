@@ -3,14 +3,29 @@ import string
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import select
 from sqlalchemy.orm import joinedload
+from sqlalchemy.engine import Result
 from pydantic.types import UUID4
 from fastapi import HTTPException
+from typing import List
 from app.validators.booking_validator import validate_booking_overlap
 
 import app.schemas.booking as booking_schema
 import app.models.booking as booking_model
 import app.models.user as user_model
 import app.models.car as car_model
+
+
+async def get_bookings(db: AsyncSession) -> List[booking_schema.Booking]:
+    result: Result = await db.execute(
+        select(booking_model.Booking).options(
+            joinedload(booking_model.Booking.user),
+            joinedload(booking_model.Booking.car),
+        )
+    )
+    all_bookings = result.all()
+    response_bookings = [booking_to_dict(booking) for booking in all_bookings]
+
+    return response_bookings
 
 
 async def search_booking(
@@ -123,3 +138,28 @@ async def generate_reference_number(db: AsyncSession) -> str:
         attempts += 1
 
     raise Exception("Failed to generate a unique reference number")
+
+
+# ここ何とかならないかな(pydanticやsqlalchemyの機能を使って)
+def booking_to_dict(booking):
+    return {
+        "id": booking.Booking.id,
+        "start_time": booking.Booking.start_time,
+        "end_time": booking.Booking.end_time,
+        "amount": booking.Booking.amount,
+        "status": booking.Booking.status,
+        "reference_number": booking.Booking.reference_number,
+        "car": {
+            "id": booking.Booking.car.id,
+            "name": booking.Booking.car.name,
+            "capacity": booking.Booking.car.capacity,
+            "car_number": booking.Booking.car.car_number,
+        },
+        "user": {
+            "id": booking.Booking.user.id,
+            "name": booking.Booking.user.name,
+            "email": booking.Booking.user.email,
+        },
+        "created_at": booking.Booking.created_at,
+        "updated_at": booking.Booking.updated_at,
+    }

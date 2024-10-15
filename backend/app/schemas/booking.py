@@ -67,3 +67,15 @@ class BookingReferenceResponse(BookingBase):
 
 class BookingCreateResponse(BookingBase):
     reference_number: str
+
+class Booking(BookingBase):
+    id: UUID4
+    user: UserBase
+    car: Car
+    start_time: datetime
+    end_time: datetime
+    amount: int
+    status: Literal["unconfirmed", "confirmed", "canceled", "paid", "completed"]
+    reference_number: str
+    created_at: datetime
+    updated_at: datetime

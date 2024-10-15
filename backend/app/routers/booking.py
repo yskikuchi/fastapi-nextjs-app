@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import UUID4
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing import List
 
 import app.schemas.booking as booking_schema
 import app.cruds.booking as booking_crud
@@ -14,6 +15,11 @@ import app.models.admin as admin_model
 import stripe
 
 router = APIRouter(tags=["booking"])
+
+
+@router.get("/booking", response_model=List[booking_schema.Booking])
+async def index_booking(db: AsyncSession = Depends(get_db)):
+    return await booking_crud.get_bookings(db)
 
 
 @router.post("/booking", response_model=booking_schema.BookingCreateResponse)

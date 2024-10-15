@@ -2,6 +2,7 @@ import uuid
 import datetime
 
 from sqlalchemy import Column, String, DateTime, Integer
+from sqlalchemy.orm import relationship
 from sqlalchemy_utils import UUIDType
 
 from app.db.db import Base
@@ -19,3 +20,4 @@ class Car(Base):
     car_number = Column(String(1024))
     created_at = Column(DateTime, default=datetime.datetime.now)
     updated_at = Column(DateTime, default=datetime.datetime.now)
+    booking = relationship("Booking", back_populates="car")

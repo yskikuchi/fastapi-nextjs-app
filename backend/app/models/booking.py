@@ -27,3 +27,4 @@ class Booking(Base):
     created_at = Column(DateTime, default=datetime.datetime.now)
     updated_at = Column(DateTime, default=datetime.datetime.now)
     user = relationship("User", back_populates="booking")
+    car = relationship("Car", back_populates="booking")
