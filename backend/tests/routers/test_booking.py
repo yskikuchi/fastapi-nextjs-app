@@ -8,6 +8,22 @@ import app.models.user as user_model
 
 
 @pytest.mark.asyncio
+async def test_get_booking(async_client, async_session_fixture):
+    await create_car(async_session_fixture)
+    result = await async_session_fixture.execute(select(car_model.Car.id))
+    car_id = result.scalars().first()
+    await create_user(async_session_fixture)
+    result = await async_session_fixture.execute(select(user_model.User.id))
+    user_id = result.scalars().first()
+    await create_booking(async_session_fixture, car_id, user_id)
+
+    response = await async_client.get("/booking")
+    assert response.status_code == 200
+    response_json = response.json()
+    assert len(response_json) == 1
+
+
+@pytest.mark.asyncio
 async def test_create_booking(async_client, async_session_fixture):
     await create_car(async_session_fixture)
     result = await async_session_fixture.execute(select(car_model.Car.id))
