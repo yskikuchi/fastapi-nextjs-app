@@ -76,7 +76,7 @@ async def create_booking(
         await db.commit()
         await db.refresh(booking)
     except Exception as e:
-        db.rollback()
+        await db.rollback()
         raise e
 
     return {"reference_number": booking.reference_number}
