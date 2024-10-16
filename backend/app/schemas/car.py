@@ -16,6 +16,12 @@ class CarCreate(CarBase):
 class CarCreateResponse(CarBase):
     pass
 
+class CarUpdate(CarBase):
+    name: str
+    capacity: int
+    car_number: str
+    price_for_initial_twelve_hours: int
+    price_per_additional_six_hours: int
 
 class Car(CarBase):
     id: UUID4
