@@ -154,6 +154,8 @@ def booking_to_dict(booking):
             "name": booking.Booking.car.name,
             "capacity": booking.Booking.car.capacity,
             "car_number": booking.Booking.car.car_number,
+            "price_for_initial_twelve_hours": booking.Booking.car.price_for_initial_twelve_hours,
+            "price_per_additional_six_hours": booking.Booking.car.price_per_additional_six_hours,
         },
         "user": {
             "id": booking.Booking.user.id,

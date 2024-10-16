@@ -86,7 +86,13 @@ async def create_admin_and_login(async_client):
 
 # テスト用の車両を作成する
 async def create_car(async_session_fixture):
-    car = car_model.Car(name="車両A", capacity=6, car_number="品川 あ 12-34")
+    car = car_model.Car(
+        name="車両A",
+        capacity=6,
+        car_number="品川 あ 12-34",
+        price_for_initial_twelve_hours=10000,
+        price_per_additional_six_hours=5000,
+    )
     async_session_fixture.add(car)
     await async_session_fixture.commit()
 
