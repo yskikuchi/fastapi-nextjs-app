@@ -14,6 +14,8 @@ async def get_cars(db: AsyncSession) -> List[car_model.Car]:
             car_model.Car.name,
             car_model.Car.capacity,
             car_model.Car.car_number,
+            car_model.Car.price_for_initial_twelve_hours,
+            car_model.Car.price_per_additional_six_hours,
         )
     )
     return result.all()
