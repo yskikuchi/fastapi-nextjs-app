@@ -37,11 +37,8 @@ async def update_car(
     original: car_model.Car,
     db: AsyncSession,
 ):
-    original.capacity = update_car.capacity
-    original.car_number = update_car.car_number
-    original.name = update_car.name
-    original.price_for_initial_twelve_hours = update_car.price_for_initial_twelve_hours
-    original.price_per_additional_six_hours = update_car.price_per_additional_six_hours
+    for attr, value in update_car.dict().items():
+        setattr(original, attr, value)
     db.add(original)
     await db.commit()
     await db.refresh(original)
