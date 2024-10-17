@@ -7,6 +7,7 @@ from sqlalchemy.engine import Result
 from pydantic.types import UUID4
 from fastapi import HTTPException
 from typing import List
+from app.types.status import BookingStatus
 from app.validators.booking_validator import validate_booking_overlap
 
 import app.schemas.booking as booking_schema
@@ -15,13 +16,19 @@ import app.models.user as user_model
 import app.models.car as car_model
 
 
-async def get_bookings(db: AsyncSession) -> List[booking_schema.Booking]:
-    result: Result = await db.execute(
-        select(booking_model.Booking).options(
-            joinedload(booking_model.Booking.user),
-            joinedload(booking_model.Booking.car),
-        )
+async def get_bookings(
+    db: AsyncSession,
+    status: BookingStatus = None,
+) -> List[booking_schema.Booking]:
+    query = select(booking_model.Booking).options(
+        joinedload(booking_model.Booking.user),
+        joinedload(booking_model.Booking.car),
     )
+
+    if status is not None:
+        query = query.filter(booking_model.Booking.status == status)
+
+    result: Result = await db.execute(query)
     all_bookings = result.all()
     response_bookings = [booking_to_dict(booking) for booking in all_bookings]
 
@@ -96,6 +103,14 @@ async def complete_payment(db: AsyncSession, booking: booking_model.Booking):
     await db.commit()
     await db.refresh(booking)
     return {"message": "Paid"}
+
+
+async def cancel_booking(db: AsyncSession, original_booking: booking_model.Booking):
+    original_booking.status = "canceled"
+    db.add(original_booking)
+    await db.commit()
+    await db.refresh(original_booking)
+    return {"message": "Canceled"}
 
 
 async def get_booking_with_user(booking_id: UUID4, db: AsyncSession):

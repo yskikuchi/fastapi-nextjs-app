@@ -2,12 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import UUID4
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List
+from typing import List, Literal
 
 import app.schemas.booking as booking_schema
 import app.cruds.booking as booking_crud
 import app.cruds.user as user_crud
 from app.db.db import get_db
+from app.types.status import BookingStatus
 import app.services.mail_service as mail_service
 import app.services.auth_service as auth_service
 import app.services.stripe_service as stripe_service
@@ -18,8 +19,11 @@ router = APIRouter(tags=["booking"])
 
 
 @router.get("/booking", response_model=List[booking_schema.Booking])
-async def index_booking(db: AsyncSession = Depends(get_db)):
-    return await booking_crud.get_bookings(db)
+async def index_booking(
+    status: BookingStatus = None,
+    db: AsyncSession = Depends(get_db),
+):
+    return await booking_crud.get_bookings(db, status)
 
 
 @router.post("/booking", response_model=booking_schema.BookingCreateResponse)
@@ -68,6 +72,35 @@ async def approve_booking(
         "予約確定",
         {"payment_link": payment_link},
         "approval_notice.html",
+    )
+    return response
+
+
+# 管理者権限で予約をキャンセル
+@router.patch("/booking/{booking_id}/cancel")
+async def cancel_booking(
+    booking_id: UUID4,
+    db: AsyncSession = Depends(get_db),
+    current_admin: admin_model.Admin = Depends(auth_service.get_current_user),
+):
+    if not current_admin:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    booking = await booking_crud.get_booking_with_user(booking_id, db)
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+
+    response = await booking_crud.cancel_booking(db, booking)
+
+    await mail_service.send_email(
+        [booking.user.email],
+        "予約キャンセル",
+        {
+            "reference_number": booking.reference_number,
+            "start_time": booking.start_time.strftime("%Y-%m-%d %H:%M:%S"),
+            "end_time": booking.end_time.strftime("%Y-%m-%d %H:%M:%S"),
+        },
+        "cancel_notice.html",
     )
     return response
 

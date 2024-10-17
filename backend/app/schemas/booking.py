@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 from app.schemas.user import UserBase
 from app.schemas.car import Car
+from app.types.status import BookingStatus
 
 
 class BookingBase(BaseModel):
@@ -61,12 +62,13 @@ class BookingReferenceResponse(BookingBase):
     start_time: datetime
     end_time: datetime
     amount: int
-    status: Literal["unconfirmed", "confirmed", "canceled", "paid", "completed"]
+    status: BookingStatus
     car: Car
 
 
 class BookingCreateResponse(BookingBase):
     reference_number: str
+
 
 class Booking(BookingBase):
     id: UUID4
@@ -75,7 +77,7 @@ class Booking(BookingBase):
     start_time: datetime
     end_time: datetime
     amount: int
-    status: Literal["unconfirmed", "confirmed", "canceled", "paid", "completed"]
+    status: BookingStatus
     reference_number: str
     created_at: datetime
     updated_at: datetime
