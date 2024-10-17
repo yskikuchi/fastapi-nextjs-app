@@ -2,21 +2,20 @@ import pytest
 import uuid
 from sqlalchemy import select
 from datetime import datetime, timedelta
-from tests.conftest import create_car, create_booking, create_user
+from tests.conftest import (
+    create_car,
+    create_booking,
+    create_user,
+    create_admin_and_login,
+)
 import app.models.car as car_model
 import app.models.user as user_model
+import app.models.booking as booking_model
 
 
 @pytest.mark.asyncio
 async def test_get_booking(async_client, async_session_fixture):
-    await create_car(async_session_fixture)
-    result = await async_session_fixture.execute(select(car_model.Car.id))
-    car_id = result.scalars().first()
-    await create_user(async_session_fixture)
-    result = await async_session_fixture.execute(select(user_model.User.id))
-    user_id = result.scalars().first()
-    await create_booking(async_session_fixture, car_id, user_id)
-
+    await create_car_and_user_and_booking(async_session_fixture)
     response = await async_client.get("/booking")
     assert response.status_code == 200
     response_json = response.json()
@@ -114,3 +113,36 @@ async def test_create_booking_invalid(async_client, async_session_fixture):
     assert response.status_code == 422
     response_json = response.json()
     assert response_json["detail"] == "選択した時間帯で既に予約が入っています"
+
+
+@pytest.mark.asyncio
+async def test_cancel_booking(async_client, async_session_fixture):
+    access_token = await create_admin_and_login(async_client)
+    _car_id, _user_id, booking_id = await create_car_and_user_and_booking(
+        async_session_fixture
+    )
+
+    response = await async_client.patch(
+        f"/booking/{booking_id}/cancel",
+        headers={"Authorization": "Bearer {token}".format(token=access_token)},
+    )
+    assert response.status_code == 200
+
+    result = await async_session_fixture.execute(
+        select(booking_model.Booking).filter_by(id=booking_id)
+    )
+    booking = result.scalars().first()
+    assert booking.status == "canceled"
+
+
+async def create_car_and_user_and_booking(async_session_fixture):
+    await create_car(async_session_fixture)
+    result = await async_session_fixture.execute(select(car_model.Car.id))
+    car_id = result.scalars().first()
+    await create_user(async_session_fixture)
+    result = await async_session_fixture.execute(select(user_model.User.id))
+    user_id = result.scalars().first()
+    await create_booking(async_session_fixture, car_id, user_id)
+    result = await async_session_fixture.execute(select(booking_model.Booking.id))
+    booking_id = result.scalars().first()
+    return car_id, user_id, booking_id
