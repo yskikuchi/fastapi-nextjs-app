@@ -23,7 +23,7 @@ async def test_get_booking(async_client, async_session_fixture):
 
 
 @pytest.mark.asyncio
-async def test_create_booking(async_client, async_session_fixture):
+async def test_create_booking(async_client, async_session_fixture, mocked_mail_service):
     await create_car(async_session_fixture)
     result = await async_session_fixture.execute(select(car_model.Car.id))
     car_id = result.scalars().first()
@@ -44,6 +44,7 @@ async def test_create_booking(async_client, async_session_fixture):
     )
 
     assert response.status_code == 200
+    assert mocked_mail_service.call_count == 1
 
 
 @pytest.mark.asyncio
@@ -116,7 +117,7 @@ async def test_create_booking_invalid(async_client, async_session_fixture):
 
 
 @pytest.mark.asyncio
-async def test_cancel_booking(async_client, async_session_fixture):
+async def test_cancel_booking(async_client, async_session_fixture, mocked_mail_service):
     access_token = await create_admin_and_login(async_client)
     _car_id, _user_id, booking_id = await create_car_and_user_and_booking(
         async_session_fixture
@@ -133,6 +134,7 @@ async def test_cancel_booking(async_client, async_session_fixture):
     )
     booking = result.scalars().first()
     assert booking.status == "canceled"
+    assert mocked_mail_service.call_count == 1
 
 
 async def create_car_and_user_and_booking(async_session_fixture):

@@ -9,6 +9,7 @@ from sqlalchemy.orm import sessionmaker
 from app.db.db import get_db, Base
 from app.main import app
 from dotenv import load_dotenv
+from pytest_mock import MockFixture
 import app.models.car as car_model
 import app.models.booking as booking_model
 import app.models.user as user_model
@@ -119,3 +120,8 @@ async def create_booking(async_session_fixture, car_id, user_id):
     )
     async_session_fixture.add(booking)
     await async_session_fixture.commit()
+
+
+@pytest.fixture()
+def mocked_mail_service(mocker: MockFixture):
+    return mocker.patch("app.services.mail_service.send_email", return_value=None)
