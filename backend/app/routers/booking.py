@@ -119,6 +119,7 @@ async def handle_payment_event(request: Request, db: AsyncSession = Depends(get_
     sig_header = request.headers.get("stripe-signature")
     event = None
 
+    # localhostで動作確認するためのStripe_webhook_secret
     endpoint_secret = (
         "whsec_779693f0c5743417e69c6a80a12864c071909f760849e335424feea604ac3f23"
     )
