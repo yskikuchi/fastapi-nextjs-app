@@ -16,7 +16,7 @@ import app.models.booking as booking_model
 @pytest.mark.asyncio
 async def test_get_booking(async_client, async_session_fixture):
     await create_car_and_user_and_booking(async_session_fixture)
-    response = await async_client.get("/booking")
+    response = await async_client.get("/bookings")
     assert response.status_code == 200
     response_json = response.json()
     assert len(response_json) == 1
@@ -29,7 +29,7 @@ async def test_create_booking(async_client, async_session_fixture, mocked_mail_s
     car_id = result.scalars().first()
 
     response = await async_client.post(
-        "/booking",
+        "/bookings",
         json={
             "user": {"name": "テストユーザー", "email": "test@sample.com"},
             "car_id": str(car_id),
@@ -56,7 +56,7 @@ async def test_create_booking_invalid(async_client, async_session_fixture):
     # 過去の日付を指定
     past_time = (datetime.now() - timedelta(days=2)).strftime("%Y-%m-%dT%H:%M:%S")
     response = await async_client.post(
-        "/booking",
+        "/bookings",
         json={
             "user": {"name": "テストユーザー", "email": "test@sample.com"},
             "car_id": str(car_id),
@@ -78,7 +78,7 @@ async def test_create_booking_invalid(async_client, async_session_fixture):
     start_time = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%dT%H:%M:%S")
     end_time = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%S")
     response = await async_client.post(
-        "/booking",
+        "/bookings",
         json={
             "user": {"name": "テストユーザー", "email": "test@sample.com"},
             "car_id": str(car_id),
@@ -102,7 +102,7 @@ async def test_create_booking_invalid(async_client, async_session_fixture):
     start_time = (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%dT%H:%M:%S")
     end_time = (datetime.now() + timedelta(days=5)).strftime("%Y-%m-%dT%H:%M:%S")
     response = await async_client.post(
-        "/booking",
+        "/bookings",
         json={
             "user": {"name": "テストユーザー", "email": "test@sample.com"},
             "car_id": str(car_id),
@@ -124,7 +124,7 @@ async def test_cancel_booking(async_client, async_session_fixture, mocked_mail_s
     )
 
     response = await async_client.patch(
-        f"/booking/{booking_id}/cancel",
+        f"/bookings/{booking_id}/cancel",
         headers={"Authorization": "Bearer {token}".format(token=access_token)},
     )
     assert response.status_code == 200

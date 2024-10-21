@@ -15,10 +15,10 @@ import app.services.stripe_service as stripe_service
 import app.models.admin as admin_model
 import stripe
 
-router = APIRouter(tags=["booking"])
+router = APIRouter(tags=["bookings"])
 
 
-@router.get("/booking", response_model=List[booking_schema.Booking])
+@router.get("/bookings", response_model=List[booking_schema.Booking])
 async def index_booking(
     status: BookingStatus = None,
     db: AsyncSession = Depends(get_db),
@@ -26,7 +26,7 @@ async def index_booking(
     return await booking_crud.get_bookings(db, status)
 
 
-@router.post("/booking", response_model=booking_schema.BookingCreateResponse)
+@router.post("/bookings", response_model=booking_schema.BookingCreateResponse)
 async def create_booking(
     booking_body: booking_schema.BookingCreate, db: AsyncSession = Depends(get_db)
 ):
@@ -47,7 +47,7 @@ async def create_booking(
     return response
 
 
-@router.patch("/booking/{booking_id}/approve")
+@router.patch("/bookings/{booking_id}/approve")
 async def approve_booking(
     booking_id: UUID4,
     db: AsyncSession = Depends(get_db),
@@ -77,7 +77,7 @@ async def approve_booking(
 
 
 # 管理者権限で予約をキャンセル
-@router.patch("/booking/{booking_id}/cancel")
+@router.patch("/bookings/{booking_id}/cancel")
 async def cancel_booking(
     booking_id: UUID4,
     db: AsyncSession = Depends(get_db),
@@ -105,7 +105,7 @@ async def cancel_booking(
     return response
 
 
-@router.post("/booking/search", response_model=booking_schema.BookingReferenceResponse)
+@router.post("/bookings/search", response_model=booking_schema.BookingReferenceResponse)
 async def search_booking(
     search_body: booking_schema.BookingReference, db: AsyncSession = Depends(get_db)
 ):
@@ -113,7 +113,7 @@ async def search_booking(
 
 
 # 支払いイベントを処理
-@router.post("/booking/payment/webhook")
+@router.post("/bookings/payment/webhook")
 async def handle_payment_event(request: Request, db: AsyncSession = Depends(get_db)):
     payload = await request.body()
     sig_header = request.headers.get("stripe-signature")
