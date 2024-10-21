@@ -1,4 +1,13 @@
-from pydantic import BaseModel, UUID4, Field, EmailStr, model_validator, field_validator
+from pydantic import (
+    BaseModel,
+    UUID4,
+    Field,
+    EmailStr,
+    model_validator,
+    field_validator,
+    ConfigDict,
+)
+from pydantic.alias_generators import to_camel
 from typing import Literal
 from datetime import datetime, timedelta
 
@@ -8,7 +17,7 @@ from app.types.status import BookingStatus
 
 
 class BookingBase(BaseModel):
-    pass
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
 
 
 # postで受け取るデータ

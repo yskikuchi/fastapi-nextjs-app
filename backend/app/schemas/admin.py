@@ -1,8 +1,9 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic.alias_generators import to_camel
 
 
 class AdminBase(BaseModel):
-    pass
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
 
 
 class AdminCreate(AdminBase):
