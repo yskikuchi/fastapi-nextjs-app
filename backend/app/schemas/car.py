@@ -34,3 +34,10 @@ class Car(CarBase):
     price_for_initial_twelve_hours: int
     price_per_additional_six_hours: int
     model_config = ConfigDict(form_attribure=True)
+
+
+class CarSummary(CarBase):
+    name: str
+    capacity: int
+    car_number: str
+    model_config = ConfigDict(form_attribure=True)

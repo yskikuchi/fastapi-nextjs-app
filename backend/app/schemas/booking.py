@@ -8,11 +8,10 @@ from pydantic import (
     ConfigDict,
 )
 from pydantic.alias_generators import to_camel
-from typing import Literal
 from datetime import datetime, timedelta
 
 from app.schemas.user import UserBase
-from app.schemas.car import Car
+from app.schemas.car import Car, CarSummary
 from app.types.status import BookingStatus
 
 
@@ -90,3 +89,9 @@ class Booking(BookingBase):
     reference_number: str
     created_at: datetime
     updated_at: datetime
+
+
+class BookingSummary(BookingBase):
+    car: CarSummary
+    start_time: datetime
+    end_time: datetime

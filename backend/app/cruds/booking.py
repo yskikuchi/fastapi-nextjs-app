@@ -5,7 +5,6 @@ from sqlalchemy.sql import select
 from sqlalchemy.orm import joinedload
 from sqlalchemy.engine import Result
 from pydantic.types import UUID4
-from fastapi import HTTPException
 from typing import List
 from app.types.status import BookingStatus
 from app.validators.booking_validator import validate_booking_overlap
@@ -31,6 +30,33 @@ async def get_bookings(
     result: Result = await db.execute(query)
     all_bookings = result.all()
     response_bookings = [booking_to_dict(booking) for booking in all_bookings]
+
+    return response_bookings
+
+
+# カレンダー表示ように、canceled以外の予約を取得
+async def get_booking_summaries(
+    db: AsyncSession,
+) -> List[booking_schema.BookingSummary]:
+    result: Result = await db.execute(
+        select(booking_model.Booking)
+        .filter(booking_model.Booking.status != "canceled")
+        .options(joinedload(booking_model.Booking.car))
+    )
+
+    all_bookings = result.all()
+    response_bookings = [
+        {
+            "start_time": booking.Booking.start_time,
+            "end_time": booking.Booking.end_time,
+            "car": {
+                "name": booking.Booking.car.name,
+                "capacity": booking.Booking.car.capacity,
+                "car_number": booking.Booking.car.car_number,
+            },
+        }
+        for booking in all_bookings
+    ]
 
     return response_bookings
 

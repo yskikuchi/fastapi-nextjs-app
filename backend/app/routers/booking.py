@@ -22,8 +22,19 @@ router = APIRouter(tags=["bookings"])
 async def index_booking(
     status: BookingStatus = None,
     db: AsyncSession = Depends(get_db),
+    current_admin: admin_model.Admin = Depends(auth_service.get_current_user),
 ):
+    if not current_admin:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
     return await booking_crud.get_bookings(db, status)
+
+
+@router.get("/bookings/summaries", response_model=List[booking_schema.BookingSummary])
+async def get_booking_summaries(
+    db: AsyncSession = Depends(get_db),
+):
+    return await booking_crud.get_booking_summaries(db)
 
 
 @router.post("/bookings", response_model=booking_schema.BookingCreateResponse)
