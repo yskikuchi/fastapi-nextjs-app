@@ -1,4 +1,4 @@
-import { Car } from './Car';
+import { Car } from '@/types/Car';
 
 type User = {
   name: string;
@@ -16,4 +16,15 @@ export type Booking = {
   referenceNumber: string;
   createdAt: string;
   updatedAt: string;
+};
+
+export type BookingCreatePayload = {
+  carId: string;
+  startTime: string;
+  endTime: string;
+  amount: number;
+  user: {
+    name: string;
+    email: string;
+  };
 };
