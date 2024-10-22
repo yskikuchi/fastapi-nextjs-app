@@ -1,15 +1,10 @@
-import BookingForm from '@/components/BookingForm';
-import Calendar from '@/components/Calendar';
+import Link from 'next/link';
 
-export default function Home() {
+export default function Page() {
   return (
     <div>
-      <div className="m-10 max-w-xl">
-        <Calendar />
-      </div>
-      <div className="m-10">
-        <BookingForm />
-      </div>
+      <h1>トップページ</h1>
+      <Link href="/bookings">予約画面へ</Link>
     </div>
   );
 }
