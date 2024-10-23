@@ -1,3 +1,4 @@
+import { test, expect } from '@jest/globals';
 import { calculateTotalPrice } from '../../../../features/booking/utils/calculate';
 
 test('currect total price', () => {
