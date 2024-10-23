@@ -1,4 +1,4 @@
-import { Car } from '@/types/Car';
+import { Car } from '@/types/car';
 
 type User = {
   name: string;
