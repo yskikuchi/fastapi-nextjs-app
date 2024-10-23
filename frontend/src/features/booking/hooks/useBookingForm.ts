@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import { useFetchCars } from './useFetchCars';
 import { calculateTotalPrice } from '../utils/calculate';
 import { Car } from '@/types/car';
@@ -16,25 +16,43 @@ export const useBookingForm = () => {
   const [lastName, setLastName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [totalAmount, setTotalAmount] = useState<number>(0);
-  const [selectedCar, setSelectedCar] = useState<Car | undefined>(cars[0]);
+  const [selectedCar, setSelectedCar] = useState<Car | undefined>(undefined);
 
-  const handleLastNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setLastName(e.target.value);
-  };
+  useEffect(() => {
+    if (cars.length > 0) {
+      setSelectedCar(cars[0]);
+    }
+  }, [cars]);
 
-  const handleFirstNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setFirstName(e.target.value);
-  };
+  const handleLastNameChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setLastName(e.target.value);
+    },
+    []
+  );
 
-  const handleStartTimeChange = (date: Date) => {
-    setStartTime(date);
-    setTotalAmount(calculateTotalPrice(selectedCar, date, endTime));
-  };
+  const handleFirstNameChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setFirstName(e.target.value);
+    },
+    []
+  );
 
-  const handleEndTimeChange = (date: Date) => {
-    setEndTime(date);
-    setTotalAmount(calculateTotalPrice(selectedCar, startTime, date));
-  };
+  const handleStartTimeChange = useCallback(
+    (date: Date) => {
+      setStartTime(date);
+      setTotalAmount(calculateTotalPrice(selectedCar, date, endTime));
+    },
+    [selectedCar, endTime]
+  );
+
+  const handleEndTimeChange = useCallback(
+    (date: Date) => {
+      setEndTime(date);
+      setTotalAmount(calculateTotalPrice(selectedCar, startTime, date));
+    },
+    [selectedCar, startTime]
+  );
 
   return {
     startTime,
