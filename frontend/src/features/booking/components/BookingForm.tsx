@@ -1,12 +1,10 @@
 'use client';
 
-import { ChangeEvent, useEffect, useState } from 'react';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import { ja } from 'date-fns/locale';
-import { Car } from '@/types/Car';
 import { postBooking } from '@/api/booking';
 import { useRouter } from 'next/navigation';
-import { getCars } from '@/api/car';
+import { useBookingForm } from '../hooks/useBookingForm';
 
 const jaLocale = {
   ...ja,
@@ -17,66 +15,22 @@ registerLocale('ja', jaLocale);
 
 export default function BookingForm() {
   const router = useRouter();
-  const [startTime, setStartTime] = useState<Date>(
-    new Date(new Date().setHours(0, 0, 0, 0))
-  );
-  const [endTime, setEndTime] = useState<Date>(
-    new Date(new Date().setHours(0, 0, 0, 0))
-  );
-  const [firstName, setFirstName] = useState<string>('');
-  const [lastName, setLastName] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
-  const [selectedCar, setSelectedCar] = useState<Car | null>(null);
-  const [totalAmount, setTotalAmount] = useState<number>(0);
-  const [cars, setCars] = useState<Car[]>([]);
-
-  useEffect(() => {
-    const fetchCars = async () => {
-      const response = await getCars();
-      setCars(response);
-      setSelectedCar(response[0]);
-    };
-
-    fetchCars();
-  }, []);
-
-  const calculateTotalPrice = (startTime: Date, endTime: Date) => {
-    const priceForInitialTwelveHours = selectedCar?.priceForInitialTwelveHours;
-    const pricePerAdditionalSixHours = selectedCar?.pricePerAdditionalSixHours;
-    const diffInMSec = endTime.getTime() - startTime.getTime();
-    const diffInHours = diffInMSec / 1000 / 60 / 60;
-
-    if (!priceForInitialTwelveHours || !pricePerAdditionalSixHours) return;
-    if (diffInMSec < 0) return;
-
-    if (diffInHours <= 12) {
-      setTotalAmount(priceForInitialTwelveHours);
-    } else {
-      const additionalHours = diffInHours - 12;
-      const totalPrice =
-        priceForInitialTwelveHours +
-        Math.ceil(additionalHours / 6) * pricePerAdditionalSixHours;
-      setTotalAmount(totalPrice);
-    }
-  };
-
-  const handleLastNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setLastName(e.target.value);
-  };
-
-  const handleFirstNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setFirstName(e.target.value);
-  };
-
-  const handleStartTimeChange = (date: Date) => {
-    setStartTime(date);
-    calculateTotalPrice(date, endTime);
-  };
-
-  const handleEndTimeChange = (date: Date) => {
-    setEndTime(date);
-    calculateTotalPrice(startTime, date);
-  };
+  const {
+    startTime,
+    endTime,
+    firstName,
+    lastName,
+    email,
+    setEmail,
+    selectedCar,
+    setSelectedCar,
+    totalAmount,
+    cars,
+    handleLastNameChange,
+    handleFirstNameChange,
+    handleStartTimeChange,
+    handleEndTimeChange,
+  } = useBookingForm();
 
   const handleBook = async () => {
     const data = {
@@ -107,7 +61,7 @@ export default function BookingForm() {
             className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
             onChange={(e) =>
               setSelectedCar(
-                cars.find((car) => car.id === e.target.value) || null
+                cars.find((car) => car.id === e.target.value)
               )
             }
           >
