@@ -61,7 +61,7 @@ export default function BookingForm() {
             className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
             onChange={(e) =>
               setSelectedCar(
-                cars.find((car) => car.id === e.target.value)
+                cars.find((car) => car.id === e.target.value) || undefined
               )
             }
           >

@@ -1,8 +1,11 @@
 import { ChangeEvent, useState } from 'react';
 import { useFetchCars } from './useFetchCars';
 import { calculateTotalPrice } from '../utils/calculate';
+import { Car } from '@/types/car';
 
 export const useBookingForm = () => {
+  const cars = useFetchCars();
+
   const [startTime, setStartTime] = useState<Date>(
     new Date(new Date().setHours(0, 0, 0, 0))
   );
@@ -13,8 +16,7 @@ export const useBookingForm = () => {
   const [lastName, setLastName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [totalAmount, setTotalAmount] = useState<number>(0);
-
-  const { cars, selectedCar, setSelectedCar } = useFetchCars();
+  const [selectedCar, setSelectedCar] = useState<Car | undefined>(cars[0]);
 
   const handleLastNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setLastName(e.target.value);
