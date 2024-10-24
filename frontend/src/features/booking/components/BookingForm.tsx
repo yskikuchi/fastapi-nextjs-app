@@ -1,17 +1,9 @@
 'use client';
 
-import DatePicker, { registerLocale } from 'react-datepicker';
-import { ja } from 'date-fns/locale';
 import { postBooking } from '@/api/booking';
 import { useRouter } from 'next/navigation';
 import { useBookingForm } from '../hooks/useBookingForm';
-
-const jaLocale = {
-  ...ja,
-  options: { ...ja.options },
-};
-
-registerLocale('ja', jaLocale);
+import { CustomDatePicker } from '@/components/CustomDatePicker';
 
 export default function BookingForm() {
   const router = useRouter();
@@ -44,10 +36,15 @@ export default function BookingForm() {
       },
     };
 
-    const response = await postBooking(data);
-    router.push(
-      `/bookings/complete?referenceNumber=${response.referenceNumber}`
-    );
+    try {
+      const response = await postBooking(data);
+      router.push(
+        `/bookings/complete?referenceNumber=${response.referenceNumber}`
+      );
+    } catch (e) {
+      alert('予約に失敗しました');
+      return;
+    }
   };
 
   return (
@@ -80,28 +77,18 @@ export default function BookingForm() {
           <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
             利用開始日時
           </label>
-          <DatePicker
-            dateFormat="yyyy/MM/dd HH:mm"
-            locale="ja"
-            selected={startTime}
-            showTimeSelect
-            timeIntervals={30}
-            onChange={(date) => handleStartTimeChange(date!)}
-            className='appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"'
+          <CustomDatePicker
+            selectedTime={startTime}
+            handleChange={handleStartTimeChange}
           />
         </div>
         <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
           <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
             利用終了日時
           </label>
-          <DatePicker
-            dateFormat="yyyy/MM/dd HH:mm"
-            locale="ja"
-            selected={endTime}
-            showTimeSelect
-            timeIntervals={30}
-            onChange={(date) => handleEndTimeChange(date!)}
-            className='appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"'
+          <CustomDatePicker
+            selectedTime={endTime}
+            handleChange={handleEndTimeChange}
           />
         </div>
         <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">

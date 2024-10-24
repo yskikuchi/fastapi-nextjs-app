@@ -7,10 +7,10 @@ export const useBookingForm = () => {
   const cars = useFetchCars();
 
   const [startTime, setStartTime] = useState<Date>(
-    new Date(new Date().setHours(0, 0, 0, 0))
+    new Date(new Date().setHours(12, 0, 0, 0))
   );
   const [endTime, setEndTime] = useState<Date>(
-    new Date(new Date().setHours(0, 0, 0, 0))
+    new Date(new Date().setHours(12, 0, 0, 0))
   );
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
