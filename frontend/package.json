@@ -8,9 +8,11 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "generate-typescript-axios": "openapi-generator-cli generate -g typescript-axios -i ./api_schema/openapi.json -o ./src/types/typescript-axios"
   },
   "dependencies": {
+    "@openapitools/openapi-generator-cli": "^2.14.1",
     "@types/react-datepicker": "^7.0.0",
     "axios": "^1.7.7",
     "date-fns": "^4.1.0",

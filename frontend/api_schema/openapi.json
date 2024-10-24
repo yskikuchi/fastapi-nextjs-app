@@ -1,0 +1,681 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "FastAPI", "version": "0.1.0" },
+  "paths": {
+    "/bookings": {
+      "get": {
+        "tags": ["bookings"],
+        "summary": "Index Booking",
+        "operationId": "index_booking_bookings_get",
+        "security": [{ "OAuth2PasswordBearer": [] }],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "unconfirmed",
+                "confirmed",
+                "canceled",
+                "paid",
+                "completed"
+              ],
+              "type": "string",
+              "title": "Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Booking" },
+                  "title": "Response Index Booking Bookings Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["bookings"],
+        "summary": "Create Booking",
+        "operationId": "create_booking_bookings_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/BookingCreate" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingCreateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookings/summaries": {
+      "get": {
+        "tags": ["bookings"],
+        "summary": "Get Booking Summaries",
+        "operationId": "get_booking_summaries_bookings_summaries_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": { "$ref": "#/components/schemas/BookingSummary" },
+                  "type": "array",
+                  "title": "Response Get Booking Summaries Bookings Summaries Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookings/{booking_id}/approve": {
+      "patch": {
+        "tags": ["bookings"],
+        "summary": "Approve Booking",
+        "operationId": "approve_booking_bookings__booking_id__approve_patch",
+        "security": [{ "OAuth2PasswordBearer": [] }],
+        "parameters": [
+          {
+            "name": "booking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid4",
+              "title": "Booking Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookings/{booking_id}/cancel": {
+      "patch": {
+        "tags": ["bookings"],
+        "summary": "Cancel Booking",
+        "operationId": "cancel_booking_bookings__booking_id__cancel_patch",
+        "security": [{ "OAuth2PasswordBearer": [] }],
+        "parameters": [
+          {
+            "name": "booking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid4",
+              "title": "Booking Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookings/search": {
+      "post": {
+        "tags": ["bookings"],
+        "summary": "Search Booking",
+        "operationId": "search_booking_bookings_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/BookingReference" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingReferenceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookings/payment/webhook": {
+      "post": {
+        "tags": ["bookings"],
+        "summary": "Handle Payment Event",
+        "operationId": "handle_payment_event_bookings_payment_webhook_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/cars": {
+      "get": {
+        "tags": ["cars"],
+        "summary": "Get Cars",
+        "operationId": "get_cars_cars_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": { "$ref": "#/components/schemas/Car" },
+                  "type": "array",
+                  "title": "Response Get Cars Cars Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["cars"],
+        "summary": "Create Booking",
+        "operationId": "create_booking_cars_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CarCreate" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2PasswordBearer": [] }]
+      }
+    },
+    "/cars/{car_id}": {
+      "patch": {
+        "tags": ["cars"],
+        "summary": "Update Car",
+        "operationId": "update_car_cars__car_id__patch",
+        "security": [{ "OAuth2PasswordBearer": [] }],
+        "parameters": [
+          {
+            "name": "car_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid4", "title": "Car Id" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CarUpdate" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "Create Admin",
+        "operationId": "create_admin_admin_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AdminCreate" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/login": {
+      "post": {
+        "tags": ["admin"],
+        "summary": "Login Admin",
+        "operationId": "login_admin_admin_login_post",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_login_admin_admin_login_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AdminCreate": {
+        "properties": {
+          "name": { "type": "string", "title": "Name" },
+          "email": { "type": "string", "format": "email", "title": "Email" },
+          "password": { "type": "string", "title": "Password" }
+        },
+        "type": "object",
+        "required": ["name", "email", "password"],
+        "title": "AdminCreate"
+      },
+      "Body_login_admin_admin_login_post": {
+        "properties": {
+          "grant_type": {
+            "anyOf": [
+              { "type": "string", "pattern": "password" },
+              { "type": "null" }
+            ],
+            "title": "Grant Type"
+          },
+          "username": { "type": "string", "title": "Username" },
+          "password": { "type": "string", "title": "Password" },
+          "scope": { "type": "string", "title": "Scope", "default": "" },
+          "client_id": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Client Id"
+          },
+          "client_secret": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Client Secret"
+          }
+        },
+        "type": "object",
+        "required": ["username", "password"],
+        "title": "Body_login_admin_admin_login_post"
+      },
+      "Booking": {
+        "properties": {
+          "id": { "type": "string", "format": "uuid4", "title": "Id" },
+          "user": { "$ref": "#/components/schemas/UserBase" },
+          "car": { "$ref": "#/components/schemas/Car" },
+          "startTime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Starttime"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Endtime"
+          },
+          "amount": { "type": "integer", "title": "Amount" },
+          "status": {
+            "type": "string",
+            "enum": [
+              "unconfirmed",
+              "confirmed",
+              "canceled",
+              "paid",
+              "completed"
+            ],
+            "title": "Status"
+          },
+          "referenceNumber": { "type": "string", "title": "Referencenumber" },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Createdat"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user",
+          "car",
+          "startTime",
+          "endTime",
+          "amount",
+          "status",
+          "referenceNumber",
+          "createdAt",
+          "updatedAt"
+        ],
+        "title": "Booking"
+      },
+      "BookingCreate": {
+        "properties": {
+          "user": { "$ref": "#/components/schemas/UserBase" },
+          "carId": { "type": "string", "format": "uuid4", "title": "Carid" },
+          "startTime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Starttime",
+            "example": "2024-10-26T07:51:02"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Endtime",
+            "example": "2024-10-28T07:51:02"
+          },
+          "amount": {
+            "type": "integer",
+            "maximum": 10000000.0,
+            "minimum": 0.0,
+            "title": "Amount",
+            "example": 10000
+          }
+        },
+        "type": "object",
+        "required": ["user", "carId"],
+        "title": "BookingCreate"
+      },
+      "BookingCreateResponse": {
+        "properties": {
+          "referenceNumber": { "type": "string", "title": "Referencenumber" }
+        },
+        "type": "object",
+        "required": ["referenceNumber"],
+        "title": "BookingCreateResponse"
+      },
+      "BookingReference": {
+        "properties": {
+          "email": { "type": "string", "format": "email", "title": "Email" },
+          "referenceNumber": { "type": "string", "title": "Referencenumber" }
+        },
+        "type": "object",
+        "required": ["email", "referenceNumber"],
+        "title": "BookingReference"
+      },
+      "BookingReferenceResponse": {
+        "properties": {
+          "startTime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Starttime"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Endtime"
+          },
+          "amount": { "type": "integer", "title": "Amount" },
+          "status": {
+            "type": "string",
+            "enum": [
+              "unconfirmed",
+              "confirmed",
+              "canceled",
+              "paid",
+              "completed"
+            ],
+            "title": "Status"
+          },
+          "car": { "$ref": "#/components/schemas/Car" }
+        },
+        "type": "object",
+        "required": ["startTime", "endTime", "amount", "status", "car"],
+        "title": "BookingReferenceResponse"
+      },
+      "BookingSummary": {
+        "properties": {
+          "car": { "$ref": "#/components/schemas/CarSummary" },
+          "startTime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Starttime"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Endtime"
+          }
+        },
+        "type": "object",
+        "required": ["car", "startTime", "endTime"],
+        "title": "BookingSummary"
+      },
+      "Car": {
+        "properties": {
+          "id": { "type": "string", "format": "uuid4", "title": "Id" },
+          "name": { "type": "string", "title": "Name" },
+          "capacity": { "type": "integer", "title": "Capacity" },
+          "carNumber": { "type": "string", "title": "Carnumber" },
+          "priceForInitialTwelveHours": {
+            "type": "integer",
+            "title": "Priceforinitialtwelvehours"
+          },
+          "pricePerAdditionalSixHours": {
+            "type": "integer",
+            "title": "Priceperadditionalsixhours"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "capacity",
+          "carNumber",
+          "priceForInitialTwelveHours",
+          "pricePerAdditionalSixHours"
+        ],
+        "title": "Car"
+      },
+      "CarCreate": {
+        "properties": {
+          "name": { "type": "string", "title": "Name" },
+          "capacity": { "type": "integer", "title": "Capacity" },
+          "carNumber": { "type": "string", "title": "Carnumber" },
+          "priceForInitialTwelveHours": {
+            "type": "integer",
+            "title": "Priceforinitialtwelvehours"
+          },
+          "pricePerAdditionalSixHours": {
+            "type": "integer",
+            "title": "Priceperadditionalsixhours"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "capacity",
+          "carNumber",
+          "priceForInitialTwelveHours",
+          "pricePerAdditionalSixHours"
+        ],
+        "title": "CarCreate"
+      },
+      "CarSummary": {
+        "properties": {
+          "name": { "type": "string", "title": "Name" },
+          "capacity": { "type": "integer", "title": "Capacity" },
+          "carNumber": { "type": "string", "title": "Carnumber" }
+        },
+        "type": "object",
+        "required": ["name", "capacity", "carNumber"],
+        "title": "CarSummary"
+      },
+      "CarUpdate": {
+        "properties": {
+          "name": { "type": "string", "title": "Name" },
+          "capacity": { "type": "integer", "title": "Capacity" },
+          "carNumber": { "type": "string", "title": "Carnumber" },
+          "priceForInitialTwelveHours": {
+            "type": "integer",
+            "title": "Priceforinitialtwelvehours"
+          },
+          "pricePerAdditionalSixHours": {
+            "type": "integer",
+            "title": "Priceperadditionalsixhours"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "capacity",
+          "carNumber",
+          "priceForInitialTwelveHours",
+          "pricePerAdditionalSixHours"
+        ],
+        "title": "CarUpdate"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": { "$ref": "#/components/schemas/ValidationError" },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "UserBase": {
+        "properties": {
+          "name": { "type": "string", "title": "Name" },
+          "email": { "type": "string", "format": "email", "title": "Email" }
+        },
+        "type": "object",
+        "required": ["name", "email"],
+        "title": "UserBase"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": { "anyOf": [{ "type": "string" }, { "type": "integer" }] },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": { "type": "string", "title": "Message" },
+          "type": { "type": "string", "title": "Error Type" }
+        },
+        "type": "object",
+        "required": ["loc", "msg", "type"],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "OAuth2PasswordBearer": {
+        "type": "oauth2",
+        "flows": { "password": { "scopes": {}, "tokenUrl": "admin/login" } }
+      }
+    }
+  }
+}
