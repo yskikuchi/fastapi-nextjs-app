@@ -13,5 +13,10 @@ export const postBooking = async (data: BookingCreatePayload) => {
     `${process.env.NEXT_PUBLIC_API_URL}/bookings`,
     data
   );
+
+  if (result.status !== 200) {
+    throw new Error('Failed to create a booking');
+  }
+
   return result.data;
 };
