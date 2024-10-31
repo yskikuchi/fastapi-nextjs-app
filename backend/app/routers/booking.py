@@ -14,6 +14,7 @@ import app.services.auth_service as auth_service
 import app.services.stripe_service as stripe_service
 import app.models.admin as admin_model
 import stripe
+import os
 
 router = APIRouter(tags=["bookings"])
 
@@ -130,10 +131,12 @@ async def handle_payment_event(request: Request, db: AsyncSession = Depends(get_
     sig_header = request.headers.get("stripe-signature")
     event = None
 
-    # localhostで動作確認するためのStripe_webhook_secret
-    endpoint_secret = (
-        "whsec_779693f0c5743417e69c6a80a12864c071909f760849e335424feea604ac3f23"
-    )
+    # Stripe webhook secret for local testing
+    endpoint_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
+    if not endpoint_secret:
+        raise ValueError(
+            "Stripe webhook secret is not set in the environment variables."
+        )
 
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
